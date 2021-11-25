@@ -1,6 +1,9 @@
 # https://github.com/marketplace/actions/shellcheck-problem-matchers
 
-on: [pull_request]
+on:
+  pull_request:
+    branch:
+      - master
 
 jobs:
   shell-check:

@@ -1,9 +1,12 @@
 # https://github.com/marketplace/actions/shell-linter
 
 on:
-  - pull_request
+  pull_request:
+    branch:
+      - master
+
 jobs:
-  lint:
+  shellcheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

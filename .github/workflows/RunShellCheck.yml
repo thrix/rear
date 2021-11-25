@@ -1,10 +1,17 @@
 # https://github.com/marketplace/actions/run-shellcheck
 
 name: Run ShellCheck
-on:
-  - pull_request
 
-steps
-  - name: Run ShellCheck
-  uses: bewuethr/shellcheck-action@v2.0.5
+on:
+  pull_request:
+    branch:
+      - master
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run ShellCheck
+        uses: bewuethr/shellcheck-action@v2.0.5
 

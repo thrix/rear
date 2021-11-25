@@ -1,9 +1,11 @@
+# https://github.com/marketplace/actions/shellcheck
+
 on:
   pull_request:
     branch:
       - master
 
-name: 'Trigger: Push action'
+name: 'Trigger: pull_request action'
 
 jobs:
   shellcheck:
