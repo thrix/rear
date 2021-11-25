@@ -9,10 +9,9 @@ jobs:
   shell-check:
     runs-on: ubuntu-latest
     name: Shell Checker
-    steps:
-      - uses: lumaxis/shellcheck-problem-matchers@v1
-      with:
-        format: tty # Available options are "gcc" or "tty"
+    uses: lumaxis/shellcheck-problem-matchers@v1
+    with:
+      format: tty # Available options are "gcc" or "tty"
           
 
 

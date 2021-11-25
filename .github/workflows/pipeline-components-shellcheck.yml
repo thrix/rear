@@ -14,4 +14,8 @@ jobs:
       - |
         find . -name .git -type d -prune -o -type f -name \*.sh -print0 |
         xargs -0 -r -n1 shellcheck
+        
+    - name: pipeline-components-shellcheck
+      uses: pipeline-components/shellcheck@v0.6.0
+
 
