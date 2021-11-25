@@ -163,3 +163,4 @@ else
     fi
 fi
 
+UNUSED_VAR="delete me... ;("
