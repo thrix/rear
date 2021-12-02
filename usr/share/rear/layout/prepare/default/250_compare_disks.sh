@@ -161,5 +161,7 @@ else
         MIGRATION_MODE='TRUE'
         LogPrint "User enforced manual disk layout configuration"
     fi
-fi
 
+UNUSED_VAR=12
+bad comment
+# also I deleted fi
