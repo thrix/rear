@@ -163,3 +163,6 @@ else
     fi
 fi
 
+UNUSED_VAR=114
+that is bad comment
+# that is correct comment
