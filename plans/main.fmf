@@ -4,4 +4,4 @@ provision:
 
 # Use the internal executor
 execute:
-    how: tmt
+    how: fmf
