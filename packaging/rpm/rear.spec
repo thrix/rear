@@ -53,6 +53,7 @@ Requires: openssl
 Requires: gawk
 Requires: attr
 Requires: bc
+Requires: make
 
 ### Non-mandatory dependencies should be specified as RPM weak dependency via
 ### Recommends: RPM_package_name
