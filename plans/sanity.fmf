@@ -1,0 +1,12 @@
+summary:
+    Sanity tests
+
+framework: beakerlib
+
+discover:
+    how: shell
+    repository: https://github.com/lzaoral/rear-testing.git
+execute:
+   	script:
+   	    - export REBOOTCOUNT=0
+   	    - Sanity/make-backup-and-restore-bios/runtest.sh
