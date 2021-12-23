@@ -1,0 +1,5 @@
+summary: show available disks
+
+execute:
+    how: tmt
+    script: lsblk -l
