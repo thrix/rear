@@ -1,0 +1,6 @@
+summary:
+    Just a basic smoke test
+provision:
+    how: local
+execute:
+    script: tmt --version

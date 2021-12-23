@@ -1,4 +1,4 @@
 summary:
     Just a basic smoke test
 execute:
-    script: rear --help
+    script: tmt --version
