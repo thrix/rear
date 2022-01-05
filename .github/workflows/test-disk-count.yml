@@ -5,3 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: lsblk
+      - run: date
+      - run: reboot
+      - run: date
