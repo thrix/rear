@@ -32,12 +32,6 @@
 # only if for each used disk size on the original system eaxctly one
 # possible target disk with same size is found on the replacement hardware.
 
-if [[ false ]]; then
-    echo "Does happen"
-else
-    echo "always happens"
-f
-
 # Nothing to do when MIGRATION_MODE is already set:
 if is_true "$MIGRATION_MODE" ; then
     LogPrint "Enforced manual disk layout configuration (MIGRATION_MODE is 'true')"
