@@ -163,21 +163,3 @@ else
     fi
 fi
 
-local unsedvar=120
-
-if [[ $unsedvar == 120 ]]; then
-    echo "unusedvar == 120"
-fi
-
-unsedvar2=12
-if [[ $unsedvar2 == 12 ]]; then
-    echo "unusedvar == 120"
-    echo "Does it split the if?"
-f
-
-if [[ $unsedvar2 == 12 ]]; then
-    echo "unusedvar == 120"
-    echo "Does it split the if?"
-elif
-    echo "Just a text in a bad if-else scope..."
-f
