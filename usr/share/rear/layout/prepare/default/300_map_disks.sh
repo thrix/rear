@@ -115,6 +115,11 @@ while read keyword orig_device orig_size junk ; do
         continue
     fi
     # The original device is not yet mapped (i.e. not used as source in the mapping file) so it needs to be mapped.
+    # Remember when target devices get known by the "same name and same size" tests
+    # that they cannot be used for recreating the current original device
+    # to avoid that already excluded target devices get needlessly
+    # considered again during the subsequent "same size" tests:
+    excluded_target_device_names=()
     # First, try to find if there is a current disk with same name and same size as the original:
     sysfs_device_name="$( get_sysfs_name "$orig_device" )"
     current_device="/sys/block/$sysfs_device_name"
@@ -132,10 +137,12 @@ while read keyword orig_device orig_size junk ; do
                 # Do not map if the current one is already used as target in the mapping file:
                 if is_mapping_target "$preferred_target_device_name" ; then
                     DebugPrint "Cannot use $preferred_target_device_name (same name and same size) for recreating $orig_device ($preferred_target_device_name already exists as target in $MAPPING_FILE)"
+                    excluded_target_device_names+=( "$preferred_target_device_name" )
                 else
                     # Ensure the determined target device is not write-protected:
                     if is_write_protected "$preferred_target_device_name" ; then
                         DebugPrint "Cannot use $preferred_target_device_name (same name and same size) for recreating $orig_device ($preferred_target_device_name is write-protected)"
+                        excluded_target_device_names+=( "$preferred_target_device_name" )
                     else
                         add_mapping "$orig_device" "$preferred_target_device_name"
                         LogPrint "Using $preferred_target_device_name (same name and same size $current_size) for recreating $orig_device"
@@ -160,9 +167,11 @@ while read keyword orig_device orig_size junk ; do
         preferred_target_device_name="$( get_device_name $current_device_path )"
         # Ensure the determined target device is really a block device (cf. above):
         test -b "$preferred_target_device_name" || continue
-        # Continue with next current block device if the current one is not of same size as the original:
+        # Continue with next block device if the current one is not of same size as the original:
         test "$orig_size" -eq "$current_size" || continue
-        # Continue with next current block device if the current one is already used as target in the mapping file:
+        # Continue with next block device if the current one was already excluded by the "same name and same size" tests above:
+        IsInArray "$preferred_target_device_name" "${excluded_target_device_names[@]}" && continue
+        # Continue with next block device if the current one is already used as target in the mapping file:
         if is_mapping_target "$preferred_target_device_name" ; then
             DebugPrint "Cannot use $preferred_target_device_name (same size) for recreating $orig_device ($preferred_target_device_name already exists as target in $MAPPING_FILE)"
             continue
@@ -199,7 +208,14 @@ while read keyword orig_device orig_size junk ; do
     # Loop over all current block devices to find appropriate ones wherefrom the user can choose:
     for current_device_path in /sys/block/* ; do
         current_device_basename="${current_device_path##*/}"
-        # Do not include removable devices in the choices for the user:
+        # Do not include removable devices in the choices for the user
+        # for example CDROM is removable because /sys/block/sr0/removable contains '1'
+        # but a USB disk is not removable because /sys/block/sdb/removable contains '0'
+        # so this condition is primarily there to skip CDROM devices
+        # (in particular the device where the ReaR recovery system was booted from)
+        # because we cannot test /sys/block/sr0/ro which usually contains '0'
+        # because that is usually a CD/DVD-RW device that can write (depending on the medium)
+        # cf. https://unix.stackexchange.com/questions/22019/how-can-i-test-whether-a-block-device-is-read-only-from-sys-or-proc
         if test "$( < $current_device_path/removable )" = "1" ; then
             Log "$current_device_basename excluded from device mapping choices (is a removable device)"
             continue
@@ -227,12 +243,9 @@ while read keyword orig_device orig_size junk ; do
             Log "$preferred_target_device_name excluded from device mapping choices (is already used as mapping target)"
             continue
         fi
-        if is_write_protected_by_pt_uuid "$preferred_target_device_name"; then
-            Log "$preferred_target_device_name excluded from device mapping choices (write-protected partition table UUID)"
-            continue
-        fi
-        if is_write_protected_by_fs_label "$preferred_target_device_name"; then
-            Log "$preferred_target_device_name excluded from device mapping choices (write-protected file system label)"
+        # Continue with next block device if the current one is designated as write-protected:
+        if is_write_protected "$preferred_target_device_name"; then
+            Log "$preferred_target_device_name excluded from device mapping choices (is designated as write-protected)"
             continue
         fi
         # Add the current device as possible choice for the user:
@@ -247,7 +260,7 @@ while read keyword orig_device orig_size junk ; do
     # At the end the mapping file is shown and the user can edit it if he does not like an automated mapping:
     if test "1" -eq "${#possible_targets[@]}" ; then
         add_mapping "$orig_device" "$possible_targets"
-        LogPrint "Using $possible_targets (the only appropriate) for recreating $orig_device"
+        LogPrint "Using $possible_targets (the only available of the disks) for recreating $orig_device"
         # Continue with next original device in the LAYOUT_FILE:
         continue
     fi

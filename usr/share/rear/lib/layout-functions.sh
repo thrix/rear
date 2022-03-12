@@ -164,8 +164,8 @@ generate_layout_dependencies() {
                 ;;
             raid)
                 name=$(echo "$remainder" | cut -d " " -f "1")
-                disks=( $(echo "$remainder" | sed -r "s/.*devices=([^ ]+).*/\1/" | tr ',' ' ') )
-                for disk in "${disks[@]}" ; do
+                disks=$(echo "$remainder" | sed -r "s/.*devices=([^ ]+).*/\1/" | tr ',' ' ')
+                for disk in $disks ; do
                     add_dependency "$name" "$disk"
                 done
                 add_component "$name" "raid"
@@ -211,9 +211,7 @@ generate_layout_dependencies() {
             multipath)
                 name=$(echo "$remainder" | cut -d " " -f "1")
                 disks=$(echo "$remainder" | cut -d " " -f "4" | tr "," " ")
-
                 add_component "$name" "multipath"
-
                 for disk in $disks ; do
                     add_dependency "$name" "$disk"
                 done
@@ -565,7 +563,7 @@ version_newer() {
 
 # Function to get version from tool.
 get_version() {
-  TERM=dumb $@ 2>&1 | sed -rn 's/^[^0-9\.]*([0-9]+\.[-0-9a-z\.]+).*$/\1/p' | head -1
+  TERM=dumb "$@" 2>&1 | sed -rn 's/^[^0-9\.]*([0-9]+\.[-0-9a-z\.]+).*$/\1/p' | head -1
 }
 
 # Translate a device name to a sysfs name.
@@ -775,17 +773,38 @@ is_disk_a_pv() {
     return 0
 }
 
-function is_multipath_path {
-    # Return 'false' if there is no device as argument:
-    test "$1" || return 1
+function is_multipath_used {
     # Return 'false' if there is no multipath command:
     type multipath &>/dev/null || return 1
-    # Return 'false' if multipath is not used, see https://github.com/rear/rear/issues/2298
+    # 'multipath -l' is the only simple and reliably working commad
+    # to find out in general whether or not multipath is used at all.
+    # But 'multipath -l' scans all devices and the time it takes is proportional
+    # to their number so that time would become rather long (seconds up to minutes)
+    # if 'multipath -l' was called for each one of hundreds or thousands of devices.
+    # So we call 'multipath -l' only once and remember the result
+    # in a global variable and then only use that global variable
+    # so we can call is_multipath_used very many times as often as needed.
+    is_true $MULTIPATH_IS_USED && return 0
+    is_false $MULTIPATH_IS_USED && return 1
+    # When MULTIPATH_IS_USED has neither a true nor false value set it and return accordingly.
     # Because "multipath -l" always returns zero exit code we check if it has real output via grep -q '[[:alnum:]]'
     # so that no "multipath -l" output could clutter the log (the "multipath -l" output is irrelevant here)
     # in contrast to e.g. test "$( multipath -l )" that would falsely succeed with blank output
     # and the output would appear in the log in 'set -x' debugscript mode:
-    multipath -l | grep -q '[[:alnum:]]' || return 1
+    if multipath -l | grep -q '[[:alnum:]]' ; then
+        MULTIPATH_IS_USED='yes'
+        return 0
+    else
+        MULTIPATH_IS_USED='no'
+        return 1
+    fi
+}
+
+function is_multipath_path {
+    # Return 'false' if there is no device as argument:
+    test "$1" || return 1
+    # Return 'false' if multipath is not used, see https://github.com/rear/rear/issues/2298
+    is_multipath_used || return 1
     # Check if a block device should be a path in a multipath device:
     multipath -c /dev/$1 &>/dev/null
 }
@@ -1361,7 +1380,7 @@ delete_dummy_partitions_and_resize_real_ones() {
 
     # Delete dummy partitions
     local -i num
-    for num in ${dummy_partitions_to_delete[@]} ; do
+    for num in "${dummy_partitions_to_delete[@]}" ; do
         LogPrint "Disk '$current_disk': deleting dummy partition number $num"
         parted -s -m $current_disk rm $num
     done

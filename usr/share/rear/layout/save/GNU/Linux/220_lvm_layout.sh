@@ -2,7 +2,7 @@
 
 # TODO: What if there are logical volumes on the system but there is no 'lvm' binary?
 # Shouldn't then "rear mkrescue" better error out here than to silently skip LVM altogether?
-# Cf. "Try hard to care about possible errors in https://github.com/rear/rear/wiki/Coding-Style
+# Cf. "Try hard to care about possible errors" in https://github.com/rear/rear/wiki/Coding-Style
 # Think about a minimal system that was set up by a (full featured) installation system
 # but tools to set up things were not installed in the (now running) installed system.
 # For example 'parted' is usually no longer needed in the installed system.
@@ -27,7 +27,7 @@ local lvs_exit_code
 # instead of how we usually do it via bash process substitution of the form
 #   while read ... do ... done < <( COMMAND )
 # The reason is that in case of process substitution COMMAND seems to be run "very asynchronously"
-# where it seems it it not possible (in a simple and clean way) to get the exit status of COMMAND.
+# where it seems it is not possible (in a simple and clean way) to get the exit status of COMMAND.
 # At least not with bash version 3.2.57 on SLES11-SP4 and not with bash version 4.3.42 on SLES12-SP4
 # where I <jsmeix@suse.de> get with both bash versions the same "always failed with exit status 127" result:
 #   # while read line ; do echo $line ; done < <( pstree -Aplau $$ ) ; wait $! && echo OK || echo FAILED with $?
