@@ -61,6 +61,9 @@ readonly RELEASE_DATE=Git
 # Where users should report bugs:
 readonly BUG_REPORT_SITE="https://github.com/rear/rear/issues"
 
+# Just to test make validate via Packit
+echo "unnecessary code"
+
 # Set machine readable and human readable start date and time values.
 # START_SECONDS is set to have a single fixed point in time
 # where other date and time formats can be derived from in a consistent way.
