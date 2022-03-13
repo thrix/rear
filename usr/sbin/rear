@@ -43,6 +43,9 @@ function apply_bash_flags_and_options_commands () {
 #   apply_bash_flags_and_options_commands "$INITIAL_BASH_FLAGS_AND_OPTIONS_COMMANDS"
 readonly INITIAL_BASH_FLAGS_AND_OPTIONS_COMMANDS="$( get_bash_flags_and_options_commands )"
 
+# just echo to test tmt
+echo "no affects"
+
 # Enable as needed for development of fail-safe code:
 # set -ue -o pipefail
 # set -xue -o pipefail
