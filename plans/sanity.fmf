@@ -5,5 +5,5 @@ framework: beakerlib
 
 discover:
     how: fmf
-    repository: https://github.com/antonvoznia/rear-testing.git
-
+    url: https://github.com/antonvoznia/rear-testing
+    ref: test-branch
