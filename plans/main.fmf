@@ -4,4 +4,8 @@
 
 # Use the internal executor
 execute:
-    how: tmt
+    script:
+        - free -h
+        - df -h
+        - lsblk
+
