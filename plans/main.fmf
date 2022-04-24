@@ -6,3 +6,5 @@ execute:
         - lsblk -f
         - free -h
         - uname -a
+        - ls -la /
+        - ls -la /boot/
