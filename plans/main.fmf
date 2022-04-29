@@ -4,16 +4,10 @@
 
 provision:
   - name: client
-    how: connect
-    guest: 192.168.124.122
-    user: root
-    password: pswd
+    how: artemis
 
   - name: server
-    how: connect
-    guest: 192.168.124.252
-    user: root
-    password: pswd
+    how: artemis
 
 prepare:
     how: shell
